@@ -1,0 +1,96 @@
+import streamlit as st
+import re
+
+st.set_page_config(page_title="MOTH", page_icon="🦋", layout="centered")
+
+# Clean Cyberpunk + Girlie Styling
+st.markdown("""
+<style>
+    .stApp {
+        background: linear-gradient(135deg, #0a0a12 0%, #120d1a 100%);
+        color: #f0e6ff;
+    }
+    h1, h2 {
+        color: #ff4dff !important;
+        text-shadow: 0 0 15px #ff4dff;
+    }
+    .stButton>button {
+        background: linear-gradient(90deg, #ff4dff, #00e5ff);
+        color: black;
+        font-weight: 800;
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 0 20px #ff4dff;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+st.title("MOTH")
+st.subheader("Close the gap. Build more.")
+
+st.markdown("### Why MOTH Exists")
+st.write("""
+MOTH helps you find forgotten subscriptions and gives you direct links to cancel them 
+so you can stop leaking money and redirect it into building your empire.
+""")
+
+st.divider()
+
+# Expanded Cancel Links Database
+cancel_links = {
+    "netflix": "https://www.netflix.com/cancelplan",
+    "spotify": "https://www.spotify.com/account/subscription/",
+    "hulu": "https://www.hulu.com/account",
+    "disney+": "https://www.disneyplus.com/account",
+    "amazon prime": "https://www.amazon.com/prime",
+    "apple music": "https://support.apple.com/en-us/HT212047",
+    "youtube premium": "https://www.youtube.com/premium",
+    "audible": "https://www.audible.com/account",
+    "dropbox": "https://www.dropbox.com/account/settings",
+    "adobe": "https://account.adobe.com/plans",
+    "microsoft 365": "https://account.microsoft.com/services",
+    "notion": "https://www.notion.so/settings",
+    "canva": "https://www.canva.com/settings/billing",
+    "zoom": "https://zoom.us/account",
+}
+
+st.markdown("### Paste Your Subscriptions or Transactions")
+
+text_input = st.text_area(
+    "Paste your list here",
+    height=180,
+    placeholder="Netflix\nSpotify Premium\nAmazon Prime\n..."
+)
+
+if st.button("RUN MOTH SCAN"):
+    if text_input.strip():
+        lines = [line.strip().lower() for line in text_input.strip().split("\n") if line.strip()]
+        detected = []
+        total_estimated = 0
+
+        for line in lines:
+            matched = False
+            for service, link in cancel_links.items():
+                if service in line:
+                    detected.append((service.title(), link))
+                    total_estimated += 15  # Rough average
+                    matched = True
+                    break
+            if not matched:
+                detected.append((line.title(), None))
+
+        st.success(f"**{len(detected)}** items detected")
+
+        st.markdown("#### Results + Cancel Links")
+        for name, link in detected:
+            if link:
+                st.markdown(f"**{name}** → [Cancel Directly]({link})")
+            else:
+                st.write(f"**{name}** — No direct link yet (search '[name] cancel subscription')")
+
+        st.info(f"**Estimated monthly savings if canceled:** ${total_estimated}+")
+    else:
+        st.warning("Please paste some subscriptions.")
+
+st.divider()
+st.caption("MOTH — Part of MOTH LLC | Vertical Integration Mode")
